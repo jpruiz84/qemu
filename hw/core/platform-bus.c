@@ -203,7 +203,7 @@ static void platform_bus_realize(DeviceState *dev, Error **errp)
 
 static Property platform_bus_properties[] = {
     DEFINE_PROP_UINT32("num_irqs", PlatformBusDevice, num_irqs, 0),
-    DEFINE_PROP_UINT32("mmio_size", PlatformBusDevice, mmio_size, 0),
+    DEFINE_PROP_UINT64("mmio_size", PlatformBusDevice, mmio_size, 0),
     DEFINE_PROP_END_OF_LIST()
 };
 
