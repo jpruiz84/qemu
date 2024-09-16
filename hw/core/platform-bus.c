@@ -132,8 +132,30 @@ static void platform_bus_map_mmio(PlatformBusDevice *pbus, SysBusDevice *sbdev,
     MemoryRegion *sbdev_mr = sysbus_mmio_get_region(sbdev, n);
     uint64_t size = memory_region_size(sbdev_mr);
     uint64_t alignment = (1ULL << (63 - clz64(size + size - 1)));
-    uint64_t off;
+    uint64_t off, s_off;
     bool found_region = false;
+
+
+    // Add an offset for 1:1 mapping of CMA regions:
+    // TODO: fix with an argument for iova mapping
+
+    // 32 bits DMA
+    if(size == 0x30000000){
+        s_off = 0x80000000 - 0x60000000;
+    }
+
+    // 64 bits DMA
+    if(size == 0x100000000){
+        alignment = 0x10000000;
+        s_off = 0x100000000 - 0x60000000;
+    }
+
+    // host1x syncpoints
+    if(size == 0x04000000){
+        s_off = 0x60000000 - 0x60000000;  
+    }
+    
+    //info_report("s_off:  0x%016lX", (uint64_t)s_off);
 
     if (memory_region_is_mapped(sbdev_mr)) {
         /* Region is already mapped, nothing to do */
@@ -144,7 +166,7 @@ static void platform_bus_map_mmio(PlatformBusDevice *pbus, SysBusDevice *sbdev,
      * Look for empty space in the MMIO space that is naturally aligned with
      * the target device's memory region
      */
-    for (off = 0; off < pbus->mmio_size; off += alignment) {
+    for (off = s_off; off < pbus->mmio_size; off += alignment) {
         if (!memory_region_find(&pbus->mmio, off, size).mr) {
             found_region = true;
             break;
