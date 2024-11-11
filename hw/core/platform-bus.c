@@ -139,6 +139,9 @@ static void platform_bus_map_mmio(PlatformBusDevice *pbus, SysBusDevice *sbdev,
     // Add an offset for 1:1 mapping of CMA regions:
     // TODO: fix with an argument for iova mapping
 
+
+    s_off = 0x10000000;
+
     // 32 bits DMA
     if(size == 0x30000000){
         s_off = 0x80000000 - 0x60000000;
@@ -155,7 +158,7 @@ static void platform_bus_map_mmio(PlatformBusDevice *pbus, SysBusDevice *sbdev,
         s_off = 0x60000000 - 0x60000000;  
     }
     
-    //info_report("s_off:  0x%016lX", (uint64_t)s_off);
+    info_report("s_off:  0x%016lX", (uint64_t)s_off);
 
     if (memory_region_is_mapped(sbdev_mr)) {
         /* Region is already mapped, nothing to do */
@@ -167,6 +170,7 @@ static void platform_bus_map_mmio(PlatformBusDevice *pbus, SysBusDevice *sbdev,
      * the target device's memory region
      */
     for (off = s_off; off < pbus->mmio_size; off += alignment) {
+        //info_report("off: 0x%016lX, size: 0x%016lX", (uint64_t)off, (uint64_t)size);
         if (!memory_region_find(&pbus->mmio, off, size).mr) {
             found_region = true;
             break;
