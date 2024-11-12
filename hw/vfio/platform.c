@@ -364,6 +364,14 @@ static int vfio_set_resample_eventfd(VFIOINTp *intp)
     return ret;
 }
 
+struct IRQState_t {
+    Object parent_obj;
+
+    qemu_irq_handler handler;
+    void *opaque;
+    int n;
+};
+
 /**
  * vfio_start_irqfd_injection - starts the virtual IRQ injection using
  * irqfd
@@ -385,6 +393,12 @@ static void vfio_start_irqfd_injection(SysBusDevice *sbdev, qemu_irq irq)
 
     QLIST_FOREACH(intp, &vdev->intp_list, next) {
         if (intp->qemuirq == irq) {
+            // Print the virtual IRQ assgined to each device
+            if(intp->qemuirq){
+                struct IRQState_t *v1;
+                v1 = (struct IRQState_t*)intp->qemuirq;
+                info_report("QEMU IRQ No: 0x%X, dec: %d, pin: %d", v1->n, v1->n, intp->pin);
+            }
             break;
         }
     }
