@@ -41,6 +41,10 @@
 
 #define BOOTLOADER_MAX_SIZE         (4 * KiB)
 
+/* Put in zero if you do not want that Qemu removes the
+ * memory configuraiton on the device tree */
+#define NOP_PREDEFINED_DTB_MEMORY      0
+
 AddressSpace *arm_boot_address_space(ARMCPU *cpu,
                                      const struct arm_boot_info *info)
 {
@@ -579,7 +583,8 @@ int arm_load_dtb(hwaddr addr, const struct arm_boot_info *binfo,
         goto fail;
     }
     while (node_path[n]) {
-        if (g_str_has_prefix(node_path[n], "/memory")) {
+        if (NOP_PREDEFINED_DTB_MEMORY && 
+                g_str_has_prefix(node_path[n], "/memory")) {
             qemu_fdt_nop_node(fdt, node_path[n]);
         }
         n++;
